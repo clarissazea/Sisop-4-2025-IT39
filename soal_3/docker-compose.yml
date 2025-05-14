@@ -1,0 +1,7 @@
+  version: "3"
+  services:
+     myapp:
+         image: Dockerfile
+         command: tail -f /dev/null
+         volumes:
+         - [path_ke_file_system_fuse]:[path_tujuan_di_dalam_kontainer]
