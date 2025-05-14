@@ -1,7 +1,23 @@
   version: "3"
   services:
-     myapp:
-         image: Dockerfile
-         command: tail -f /dev/null
-         volumes:
-         - [path_ke_file_system_fuse]:[path_tujuan_di_dalam_kontainer]
+    it24_host:
+      image: node:16-alpine
+      container_name: bind-container
+      working_dir: /app
+      #volumes:
+      #  - ./target:/app
+      stdin_open: true     # sama dengan -it (interactive)
+      tty: true            # sama dengan -it (pseudo-TTY)
+      restart: unless-stopped
+    antink-logs:
+      image: node:16-alpine
+      container_name: bind-container
+      working_dir: /app
+      #volumes:
+      #  - ./target:/app
+      stdin_open: true     # sama dengan -it (interactive)
+      tty: true            # sama dengan -it (pseudo-TTY)
+      restart: unless-stopped
+    myapp:
+      image: Dockerfile
+      command: tail -f /dev/null
