@@ -122,16 +122,16 @@ static int pujo_read(const char *path, char *buf, size_t size, off_t offset, str
 
     if (nafis(path)) {
         char logmsg[1024];
-        sprintf(logmsg, "[INFO] File read: %s (no ROT13 - anomaly nafis jir)", path);
+        sprintf(logmsg, "[INFO] File: %s (no ROT13 - anomaly nafis jir)", path);
         write_log(logmsg);
     } else if (kimcun(path)) {
         char logmsg[1024];
-        sprintf(logmsg, "[INFO] File read: %s (no ROT13 - anomaly kimcun jir)", path);
+        sprintf(logmsg, "[INFO] File: %s (no ROT13 - anomaly kimcun jir)", path);
         write_log(logmsg);
     } else {
         encode_rot13(buf, res);
         char logmsg[1024];
-        sprintf(logmsg, "[INFO] File read: %s (ROT13 applied)", path);
+        sprintf(logmsg, "[INFO] File: %s (ROT13 applied)", path);
         write_log(logmsg);
     }
 
