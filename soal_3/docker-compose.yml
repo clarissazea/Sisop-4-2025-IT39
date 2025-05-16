@@ -1,23 +1,24 @@
-  version: "3"
-  services:
-    it24_host:
-      image: node:16-alpine
-      container_name: bind-container
-      working_dir: /app
-      #volumes:
-      #  - ./target:/app
-      stdin_open: true     # sama dengan -it (interactive)
-      tty: true            # sama dengan -it (pseudo-TTY)
-      restart: unless-stopped
-    antink-logs:
-      image: node:16-alpine
-      container_name: bind-container
-      working_dir: /app
-      #volumes:
-      #  - ./target:/app
-      stdin_open: true     # sama dengan -it (interactive)
-      tty: true            # sama dengan -it (pseudo-TTY)
-      restart: unless-stopped
-    myapp:
-      image: Dockerfile
-      command: tail -f /dev/null
+version: "3"
+services:
+  antink-server:
+    build: ./server
+    privileged: true
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - it24_host:/original
+      - antink_mount:/antink_mount
+      - antink-logs:/var/log
+
+  antink-logger:
+    build: ./logger
+    volumes:
+      - antink-logs:/var/log
+    command: tail -F /var/log/it24.log
+
+volumes:
+  it24_host:
+  antink_mount:
+  antink-logs:
