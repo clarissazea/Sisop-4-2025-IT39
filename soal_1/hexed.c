@@ -28,7 +28,7 @@ static void clear_images_dir()
     }
     closedir(dp);
 
-    // Delete conversion.log in src_dir
+    
     char log_path[1024];
     snprintf(log_path, sizeof(log_path), "%s/conversion.log", src_dir);
     unlink(log_path); // remove log file before regeneration
