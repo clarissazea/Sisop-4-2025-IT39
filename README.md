@@ -56,6 +56,8 @@ static int baymax_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 B. File dapat dibaca, disalin, dan ditampilkan utuh
 ```c
 
+```
+
 
 # Soal 3
 Dikerjakan oleh Muhammad Rafi' Adly (5027241082)
