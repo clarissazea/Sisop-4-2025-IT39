@@ -10,8 +10,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
-static char src_dir[1024];          // anomali (real files live here)
-static char img_dir[1024];          // anomali/image (generated PNGs)
+static char src_dir[1024];          
+static char img_dir[1024];          
 
 static void clear_images_dir()
 {
@@ -23,7 +23,7 @@ static void clear_images_dir()
     while ((de = readdir(dp))) {
         if (de->d_type == DT_REG && strstr(de->d_name, ".png")) {
             snprintf(filepath, sizeof(filepath), "%s/%s", img_dir, de->d_name);
-            unlink(filepath); // delete the file
+            unlink(filepath); 
         }
     }
     closedir(dp);
@@ -35,7 +35,6 @@ static void clear_images_dir()
 }
 
 
-// ─────────────────────────── helpers ────────────────────────────
 static void hex_to_png(const char *txt_path, const char *png_path)
 {
     FILE *in  = fopen(txt_path, "r");
@@ -57,17 +56,15 @@ static void hex_to_png(const char *txt_path, const char *png_path)
     fclose(out);
 }
 
-static void ensure_png(const char *base)          // base = "1"  or "2" …
+static void ensure_png(const char *base)          
 {
-    // build txt and png full paths
+    
     char txt[1024], png[1024];
     snprintf(txt, sizeof(txt), "%s/%s.txt", src_dir, base);
 
-    // timestamp only once (at creation)
     struct stat st;
-    if (stat(txt, &st) == -1) return;             // .txt missing
+    if (stat(txt, &st) == -1) return;             
 
-    // Does a PNG already exist for *this* txt?
     DIR *dp = opendir(img_dir);
     if (!dp) return;
     struct dirent *de;
@@ -75,13 +72,13 @@ static void ensure_png(const char *base)          // base = "1"  or "2" …
     snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);
     while ((de = readdir(dp))) {
         if (strncmp(de->d_name, wanted_prefix, strlen(wanted_prefix)) == 0) {
-            closedir(dp);                         // already converted
+            closedir(dp);                        
             return;
         }
     }
     closedir(dp);
 
-    /* create image/<basename>_image_YYYY-MM-DD_HH:MM:SS.png */
+    
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     char ts[32];
@@ -90,9 +87,9 @@ static void ensure_png(const char *base)          // base = "1"  or "2" …
 
     hex_to_png(txt, png);
 
-    // Logging
+    
     char log_path[1024];
-    sprintf(log_path, "%s/conversion.log", src_dir); // src_dir is your base folder (e.g., "anomali")
+    sprintf(log_path, "%s/conversion.log", src_dir); 
 
     struct tm *tm_info = localtime(&now);
     char timestamp[64];
@@ -105,12 +102,12 @@ static void ensure_png(const char *base)          // base = "1"  or "2" …
         fclose(log_file);
     }
 }
-// ─────────────────────────── FUSE ops ────────────────────────────
+
 static int fs_getattr(const char *path, struct stat *st)
 {
     memset(st, 0, sizeof(*st));
 
-    /* special virtual directory /image */
+    
     if (strcmp(path, "/image") == 0 || strcmp(path, "/image/") == 0) {
         st->st_mode = S_IFDIR | 0755;
         st->st_nlink = 2;
@@ -118,9 +115,9 @@ static int fs_getattr(const char *path, struct stat *st)
     }
 
     char real[1024];
-    if (strncmp(path, "/image/", 8) == 0)         // inside image/
+    if (strncmp(path, "/image/", 8) == 0)        
         snprintf(real, sizeof(real), "%s/%s", img_dir, path + 8);
-    else                                          // root *.txt
+    else                                         
         snprintf(real, sizeof(real), "%s%s", src_dir, path);
 
     if (lstat(real, st) == -1) return -errno;
@@ -132,7 +129,7 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 {
     (void) off; (void) fi;
 
-    /* root dir: list *.txt + "image" */
+    
     if (strcmp(path, "/") == 0) {
         filler(buf, ".",  NULL, 0);
         filler(buf, "..", NULL, 0);
@@ -150,14 +147,14 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         return 0;
     }
 
-    /* /image dir: ensure PNGs exist, then list them */
+    
     if (strcmp(path, "/image") == 0 || strcmp(path, "/image/") == 0) {
         filler(buf, ".",  NULL, 0);
         filler(buf, "..", NULL, 0);
 
         clear_images_dir();
 
-        /* for every *.txt make sure a png exists */
+    
         DIR *dp_txt = opendir(src_dir);
         if (dp_txt) {
             struct dirent *de;
@@ -165,13 +162,13 @@ static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                 if (de->d_type == DT_REG && strstr(de->d_name, ".txt")) {
                     char base[256];
                     strncpy(base, de->d_name, sizeof(base));
-                    base[strlen(base)-4] = '\0';   // chop ".txt"
+                    base[strlen(base)-4] = '\0';   
                     ensure_png(base);
                 }
             }
             closedir(dp_txt);
         }
-        /* now list image files */
+    
         DIR *dp = opendir(img_dir);
         if (!dp) return -errno;
         struct dirent *de;
@@ -223,7 +220,7 @@ static struct fuse_operations ops = {
     .open    = fs_open,
     .read    = fs_read,
 };
-// ─────────────────────────── main ────────────────────────────────
+
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
@@ -233,14 +230,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Hardcoded source directory (change to your real path if needed)
-    realpath("anomali", src_dir);  // or use absolute path if needed
+    
+    realpath("anomali", src_dir);  
     snprintf(img_dir, sizeof(img_dir), "%s/image", src_dir);
-    mkdir(img_dir, 0755);  // ensure image/ exists
-
-    // Shift argv so FUSE sees only its own args
-    argv[1] = argv[1];  // nothing to shift anymore
-    // argc stays the same
+    mkdir(img_dir, 0755);  
+    
+    
+    argv[1] = argv[1];  
+ 
 
     umask(0);
     return fuse_main(argc, argv, &ops, NULL);
