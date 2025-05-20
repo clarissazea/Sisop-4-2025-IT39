@@ -3,6 +3,16 @@
 # Soal 1
 Dikerjakan oleh Clarissa Aydin Rahmazea (5027241014)
 
+Program hexed.c adalah implementasi virtual filesystem berbasis FUSE yang bertujuan untuk membantu Shorekeeper dalam mengelola dan menginterpretasikan anomali teks hexadecimal yang ditemukan di wilayah Black Shores. Ketika direktori /image dalam filesystem virtual dibuka, sistem akan secara otomatis mencari file teks hexadecimal di direktori sumber (anomali/), mengonversinya menjadi file gambar .png, dan mencatat proses tersebut ke dalam conversion.log.
+
+## Struktur File Input/Output
+- Input: File teks .txt yang berada di direktori anomali/ dengan konten string heksadesimal.
+- Output:
+    - File gambar .png di anomali/image/ dengan nama [nama_file]_image_[timestamp].png
+    - File log conversion.log di anomali/ yang mencatat waktu dan hasil konversi.
+
+
+
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
 
