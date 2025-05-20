@@ -19,10 +19,10 @@ Program `hexed.c` adalah implementasi virtual filesystem berbasis FUSE yang bert
 ```
 
 ## Struktur File Input/Output
-- Input: File teks .txt yang berada di direktori anomali/ dengan konten string heksadesimal.
+- Input: File teks `.txt` yang berada di direktori anomali/ dengan konten string heksadesimal.
 - Output:
-    - File gambar .png di anomali/image/ dengan nama [nama_file]_image_[timestamp].png
-    - File log conversion.log di anomali/ yang mencatat waktu dan hasil konversi.
+    - File gambar `.png` di anomali/image/ dengan nama `[nama_file]_image_[timestamp].png`
+    - File log `conversion.log` di anomali/ yang mencatat waktu dan hasil konversi.
 
 
 
