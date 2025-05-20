@@ -8,14 +8,14 @@ Program `hexed.c` adalah implementasi virtual filesystem berbasis FUSE yang bert
 ## Alur Kerja System
 ```bash
 1. Mount FUSE:
-    - Sistem file virtual di-mount di `<mountpoint_mnt>`.
+    - Sistem file virtual di-mount di `<mountpoint_mnt>`
 2. Akses Direktori:
-    - Saat user membuka /, akan melihat daftar file .txt dan direktori image.
-    - Saat membuka /image, semua file .txt dikonversi ke PNG.
+    - Saat user membuka /, akan melihat daftar file `.txt` dan direktori image.
+    - Saat membuka /image, semua file `.txt` dikonversi ke PNG.
 3. Konversi Hexadecimal:
     - File teks hexadecimal dibaca per dua karakter → diubah ke byte → ditulis sebagai PNG.
 4. Logging:
-    - Setiap konversi dicatat di conversion.log.
+    - Setiap konversi dicatat di `conversion.log.`
 ```
 
 ## Struktur File Input/Output
