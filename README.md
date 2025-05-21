@@ -156,12 +156,54 @@ static void ensure_png(const char *base)
 ```
 Penjelasan:
 - `snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);` Memeriksa apakah sudah ada file PNG dengan prefix `base_image_`
-- `time_t now = time(NULL);
-struct tm *t = localtime(&now);
-strftime(ts, sizeof(ts), "%Y-%m-%d_%H:%M:%S", t);` : Buat file PNG baru dengan timestamp
+- `time_t now = time(NULL);` : Buat file PNG baru dengan timestamp
 - `hex_to_png(txt, png);`: Memanggil fungsi `hex_to_png()` untuk mengubah file teks heksadesimal (txt) ke PNG (png).
 - `sprintf(log_path, "%s/conversion.log", src_dir);` : Menambahkan entri log ke `src_dir/conversion.log`.
+- `fprintf(log_file, "[%s]: Successfully converted %s to %s.\n", 
+        timestamp, base, strrchr(png, '/') + 1);` format log sesuai dengan yang diminta soal
 
+### 4. Fungsi `fs_getattr`
+
+Fungsi fs_getattr() adalah bagian dari implementasi filesystem (FUSE) yang bertugas untuk mengambil metadata dari sebuah file atau direktori. Jadi fungsi ini adalah fungsi utama untuk menampilkan informasi file ke filesystem virtual.
+
+
+```bash
+static int fs_getattr(const char *path, struct stat *st)
+{
+    memset(st, 0, sizeof(*st));
+
+    
+    if (strcmp(path, "/image") == 0 || strcmp(path, "/image/") == 0) {
+        st->st_mode = S_IFDIR | 0755;
+        st->st_nlink = 2;
+        return 0;
+    }
+
+    char real[1024];
+    if (strncmp(path, "/image/", 8) == 0)        
+        snprintf(real, sizeof(real), "%s/%s", img_dir, path + 8);
+    else                                         
+        snprintf(real, sizeof(real), "%s%s", src_dir, path);
+
+    if (lstat(real, st) == -1) return -errno;
+    return 0;
+}
+```
+Penjelasan:
+
+- `memset(st, 0, sizeof(*st));`: Membersihkan struct `stat` sebelum diisi.
+-
+  ```
+  char real[1024];
+    if (strncmp(path, "/image/", 8) == 0)
+    snprintf(real, sizeof(real), "%s/%s", img_dir, path + 8);
+    else
+    snprintf(real, sizeof(real), "%s%s", src_dir, path);
+``
+    - Jika path dimulai dengan `/image/` (contoh: `/image/test.png`), mapping ke direktori fisik `img_dir/test.png`.
+    - Jika bukan (contoh: `/file.txt`), mapping ke `src_dir/file.txt`.
+
+- `if (lstat(real, &st) == -1) return -errno;`: Memanggil lstat() untuk membaca atribut file fisik.
 
 
 # Soal 2
