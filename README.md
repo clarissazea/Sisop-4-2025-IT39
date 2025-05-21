@@ -345,7 +345,43 @@ Operasi pembacaan:
       - `sz`: Jumlah byte yang ingin dibaca
       - `off`: Offset mulai membaca
 
-### 8. F
+### 8. Fungsi main()
+
+```
+if (argc < 2) {
+    fprintf(stderr, "Usage: %s <mountpoint_mnt> [FUSE opts]\n", argv[0]);
+    return 1;
+}
+```
+- Mengecek jumlah argumen saat menjalankan program
+- Jika kurang dari 2 argumen (tidak menyertakan mount point), menampilkan pesan penggunaan:
+    `Usage: ./program <mountpoint_mnt> [FUSE opts]`
+
+```
+realpath("anomali", src_dir);
+snprintf(img_dir, sizeof(img_dir), "%s/image", src_dir);
+mkdir(img_dir, 0755);
+```
+- `realpath("anomali", src_dir)`
+    - Mengkonversi path relatif "anomali" ke path absolut
+    - Menyimpan hasilnya di variabel global src_dir
+    - Contoh: /home/user/anomali
+- `snprintf(img_dir, ...)`:
+    - Membentuk path untuk direktori gambar dengan format `{src_dir}/image`
+    - Contoh: /home/user/anomali/image
+ 
+- `mkdir(img_dir, 0755)`
+    - Membuat direktori gambar dengan permission `755`
+    - Jika direktori sudah ada, tidak akan membuat baru
+```
+umask(0);
+return fuse_main(argc, argv, &ops, NULL);
+```
+
+- `umask(0)`: Menyetel umask ke 0, memastikan permission file/direktori yang dibuat persis seperti yang ditentukan. Tanpa ini, permission asli bisa berbeda karena dipengaruhi oleh umask sistem.
+- `fuse_main(argc, argv, &ops, NULL):`: Fungsi utama FUSE yang memulai filesystem virtual
+    - `argc/argv`: Argument dari command line
+    - `&ops:` Struct berisi pointer ke fungsi-fungsi filesystem (`fs_readdir`, `fs_open`, dll)
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
