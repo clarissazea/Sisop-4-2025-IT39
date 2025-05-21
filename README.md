@@ -155,11 +155,14 @@ static void ensure_png(const char *base)
 }
 ```
 Penjelasan:
-- `snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);
-while ((de = readdir(dp))) {
-    if (strncmp(de->d_name, wanted_prefix, strlen(wanted_prefix)) == 0) {
-        closedir(dp);
-        return;` 
+- `snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);` Memeriksa apakah sudah ada file PNG dengan prefix `base_image_`
+- `time_t now = time(NULL);
+struct tm *t = localtime(&now);
+strftime(ts, sizeof(ts), "%Y-%m-%d_%H:%M:%S", t);` : Buat file PNG baru dengan timestamp
+- `hex_to_png(txt, png);`: Memanggil fungsi `hex_to_png()` untuk mengubah file teks heksadesimal (txt) ke PNG (png).
+- `sprintf(log_path, "%s/conversion.log", src_dir);` : Menambahkan entri log ke `src_dir/conversion.log`.
+
+
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
