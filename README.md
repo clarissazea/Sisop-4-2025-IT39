@@ -24,7 +24,43 @@ Program `hexed.c` adalah implementasi virtual filesystem berbasis FUSE yang bert
     - File gambar `.png` di anomali/image/ dengan nama `[nama_file]_image_[timestamp].png`
     - File log `conversion.log` di anomali/ yang mencatat waktu dan hasil konversi.
 
+## Cara Pengerjaan
 
+### 1. Fungsi clear_images_dir()
+
+Fungsi ini bertujuan untuk membersihkan direktori gambar dengan menghapus semua file berekstensi `.png` dan juga menghapus file log konversi. 
+
+```bash
+static void clear_images_dir()
+{
+    DIR *dp = opendir(img_dir);
+    if (!dp) return;
+
+    struct dirent *de;
+    char filepath[1024];
+    while ((de = readdir(dp))) {
+        if (de->d_type == DT_REG && strstr(de->d_name, ".png")) {
+            snprintf(filepath, sizeof(filepath), "%s/%s", img_dir, de->d_name);
+            unlink(filepath); 
+        }
+    }
+    closedir(dp);
+
+    
+    char log_path[1024];
+    snprintf(log_path, sizeof(log_path), "%s/conversion.log", src_dir);
+    unlink(log_path); // remove log file before regeneration
+}
+```
+- `DIR *dp = opendir(img_dir);`: Fungsi ini membuka direktori yang ditunjuk oleh img_dir (variabel umum yang menyimpan path direktori gambar).
+- `if (!dp) return;`: Jika gagal membuka direktori, fungsi akan langsung keluar.
+- `struct dirent *de;
+while ((de = readdir(dp)))` : Membaca setiap entri (file/subdirektori) dalam direktori
+- `if (de->d_type == DT_REG && strstr(de->d_name, ".png"))`:
+  - DT_REG memastikan itu adalah file reguler (bukan direktori/link)
+  - strstr() memeriksa apakah nama file mengandung string ".png"
+- `snprintf(log_path, sizeof(log_path), "%s/conversion.log", src_dir);
+unlink(log_path);` Menghapus file log yang terletak di direktori sumber (src_dir).
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
