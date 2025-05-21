@@ -166,6 +166,7 @@ Penjelasan:
 
 Fungsi fs_getattr() adalah bagian dari implementasi filesystem (FUSE) yang bertugas untuk mengambil metadata dari sebuah file atau direktori. Jadi fungsi ini adalah fungsi utama untuk menampilkan informasi file ke filesystem virtual.
 
+Virtual Filesystem ini membuat `/image` seolah-olah direktori nyata, meskipun tidak ada di disk.
 
 ```bash
 static int fs_getattr(const char *path, struct stat *st)
@@ -205,6 +206,146 @@ Penjelasan:
 
 - `if (lstat(real, &st) == -1) return -errno;`: Memanggil lstat() untuk membaca atribut file fisik.
 
+
+### 5. Fungsi `fs_readdir`
+
+Fungsi ini merupakan bagian penting dari implementasi FUSE yang bertanggung jawab untuk:
+- Menampilkan daftar file/direktori saat user menjalankan perintah seperti `ls`
+- Mengelola konversi otomatis file teks `.txt` ke gambar `.png`
+- Menyediakan tampilan direktori virtual `/image` yang berisi hasil konversi
+
+```
+static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+                      off_t off, struct fuse_file_info *fi)
+{
+    (void) off; (void) fi;
+
+    
+    if (strcmp(path, "/") == 0) {
+        filler(buf, ".",  NULL, 0);
+        filler(buf, "..", NULL, 0);
+        filler(buf, "image", NULL, 0);
+        filler(buf, "conversion.log", NULL, 0);
+
+        DIR *dp = opendir(src_dir);
+        if (!dp) return -errno;
+        struct dirent *de;
+        while ((de = readdir(dp))) {
+            if (de->d_type == DT_REG && strstr(de->d_name, ".txt"))
+                filler(buf, de->d_name, NULL, 0);
+        }
+        closedir(dp);
+        return 0;
+    }
+
+    
+    if (strcmp(path, "/image") == 0 || strcmp(path, "/image/") == 0) {
+        filler(buf, ".",  NULL, 0);
+        filler(buf, "..", NULL, 0);
+
+        clear_images_dir();
+
+    
+        DIR *dp_txt = opendir(src_dir);
+        if (dp_txt) {
+            struct dirent *de;
+            while ((de = readdir(dp_txt))) {
+                if (de->d_type == DT_REG && strstr(de->d_name, ".txt")) {
+                    char base[256];
+                    strncpy(base, de->d_name, sizeof(base));
+                    base[strlen(base)-4] = '\0';   
+                    ensure_png(base);
+                }
+            }
+            closedir(dp_txt);
+        }
+    
+        DIR *dp = opendir(img_dir);
+        if (!dp) return -errno;
+        struct dirent *de;
+        while ((de = readdir(dp))) {
+            if (de->d_type == DT_REG && strstr(de->d_name, ".png"))
+                filler(buf, de->d_name, NULL, 0);
+        }
+        closedir(dp);
+        return 0;
+    }
+    return -ENOENT;
+}
+
+```
+Penjelasan:
+```
+static int fs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+                     off_t off, struct fuse_file_info *fi)
+```
+- `path` : Path direktori yang ingin dibaca
+- `buf`: Buffer untuk menyimpan hasil
+- `filler`: Fungsi callback untuk mengisi buffer dengan entri direktori
+
+```
+if (strcmp(path, "/") == 0) {
+    filler(buf, ".",  NULL, 0);    // `Entri direktori saat ini`
+    filler(buf, "..", NULL, 0);    // `Entri parent directory`
+    filler(buf, "image", NULL, 0); // `Direktori image virtual`
+    filler(buf, "conversion.log", NULL, 0); // `File log`
+
+```
+```
+while ((de = readdir(dp))) {
+    if (de->d_type == DT_REG && strstr(de->d_name, ".png"))
+        filler(buf, de->d_name, NULL, 0);
+}
+```
+Menampilkan file PNG hasil konversi:
+
+Return Value
+- `0` jika sukses
+- `-errno` jika terjadi error saat membuka direktori
+- `ENOENT` jika path tidak dikenali
+
+### 6. Fungsi `fs_open`
+Fungsi ini bertugas untuk membuka file dalam filesystem virtual sebelum operasi baca dilakukan.
+
+```
+if (strncmp(path, "/image/", 8) == 0)
+    snprintf(real, sizeof(real), "%s/%s", img_dir, path + 8);
+else
+    snprintf(real, sizeof(real), "%s%s", src_dir, path);
+```
+- Jika path dimulai dengan `/image/`, mapping ke direktori fisik `img_dir`
+- Jika tidak, mapping ke direktori `src_dir`
+  
+```
+int fd = open(real, O_RDONLY);
+```
+- Membuka file dalam mode read-only `(O_RDONLY)`.
+```
+if (fd == -1) return -errno;
+```
+- Jika gagal, return kode error sistem
+
+```
+close(fd);
+return 0;
+```
+- File langsung ditutup setelah dibuka (karena hanya pengecekan)
+- Return 0 jika sukses
+
+### 7. Fungsi `fs_read`
+Fungsi ini bertugas untuk membaca konten file dari filesystem virtual.
+
+```
+int rd = pread(fd, buf, sz, off);
+```
+Operasi pembacaan:
+- Membaca data dengan pread (baca pada offset tertentu)
+- Parameter:
+      - `buf`: Buffer penyimpanan hasil baca
+      - `sz`: Jumlah byte yang ingin dibaca
+      - `off`: Offset mulai membaca
+
+### 8. F
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
