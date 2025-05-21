@@ -400,7 +400,14 @@ return fuse_main(argc, argv, &ops, NULL);
  
 ## Dokumentasi
 
+Struktur akhir directory
+
 ![image](https://github.com/user-attachments/assets/4839e907-b0cf-4bca-9593-37358700091b)
+
+Membaca `conversion.log`
+
+![image](https://github.com/user-attachments/assets/5d1989e0-adfa-49a3-ba5e-b51d4a09d80f)
+
 
 
 # Soal 2
