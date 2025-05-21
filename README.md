@@ -368,7 +368,8 @@ if (argc < 2) {
 }
 ```
 - Mengecek jumlah argumen saat menjalankan program
-- Jika kurang dari 2 argumen (tidak menyertakan mount point), menampilkan pesan penggunaan:
+- Jika kurang dari 2 argumen (tidak menyertakan mount point (`mnt`), akan menampilkan pesan penggunaan:
+  
     `Usage: ./program <mountpoint_mnt> [FUSE opts]`
 
 ```
