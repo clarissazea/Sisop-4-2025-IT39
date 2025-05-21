@@ -26,9 +26,9 @@ Program `hexed.c` adalah implementasi virtual filesystem berbasis FUSE yang bert
 
 ## Cara Pengerjaan
 
-### 1. Fungsi clear_images_dir()
+### 1. Fungsi `clear_images_dir()`
 
-Fungsi ini bertujuan untuk membersihkan direktori gambar dengan menghapus semua file berekstensi `.png` dan juga menghapus file log konversi. 
+Fungsi ini bertujuan untuk membersihkan semua file PNG dalam direktori gambar sebelum proses generasi gambar baru dan menghapus log konversi sebelumnya untuk memulai log yang fresh.
 
 ```bash
 static void clear_images_dir()
@@ -52,15 +52,114 @@ static void clear_images_dir()
     unlink(log_path); // remove log file before regeneration
 }
 ```
+Penjelasan: 
+
 - `DIR *dp = opendir(img_dir);`: Fungsi ini membuka direktori yang ditunjuk oleh img_dir (variabel umum yang menyimpan path direktori gambar).
 - `if (!dp) return;`: Jika gagal membuka direktori, fungsi akan langsung keluar.
 - `struct dirent *de;
 while ((de = readdir(dp)))` : Membaca setiap entri (file/subdirektori) dalam direktori
 - `if (de->d_type == DT_REG && strstr(de->d_name, ".png"))`:
-  - DT_REG memastikan itu adalah file reguler (bukan direktori/link)
-  - strstr() memeriksa apakah nama file mengandung string ".png"
+  - `DT_REG` memastikan itu adalah file reguler (bukan direktori/link)
+  - `strstr()` memeriksa apakah nama file mengandung string ".png"
 - `snprintf(log_path, sizeof(log_path), "%s/conversion.log", src_dir);
 unlink(log_path);` Menghapus file log yang terletak di direktori sumber (src_dir).
+
+### 2. Fungsi `void hex_to_png`
+
+Fungsi ini bertujuan untuk mengkonversi data teks berformat heksadesimal (hex) ke dalam file biner PNG (decode file PNG yang sebelumnya di-encode ke format teks hex).
+
+```bash
+static void hex_to_png(const char *txt_path, const char *png_path)
+{
+    FILE *in  = fopen(txt_path, "r");
+    if (!in) return;
+
+    FILE *out = fopen(png_path, "wb");
+    if (!out) { fclose(in); return; }
+
+    int hi, lo;
+    while ((hi = fgetc(in)) != EOF) {
+        if (hi == '\n' || hi == '\r' || hi == ' ') continue;
+        lo = fgetc(in);
+        if (lo == EOF) break;
+        char hex[3] = { (char)hi, (char)lo, 0 };
+        unsigned char byte = (unsigned char) strtol(hex, NULL, 16);
+        fputc(byte, out);
+    }
+    fclose(in);
+    fclose(out);
+}
+```
+Penjelasan:
+
+- `FILE *in = fopen(txt_path, "r");
+if (!in) return;`
+    - Membuka file teks (yang berisi data hex) untuk dibaca ("r")
+    - Jika gagal membuka file, fungsi langsung keluar.
+- `FILE *out = fopen(png_path, "wb");
+if (!out) { fclose(in); return; }`
+    - Membuka/membuat file PNG dalam mode binary write ("wb").
+    - Jika gagal, file input ditutup dan fungsi keluar.
+- `strtol(hex, NULL, 16)`: mengubah string hex (basis 16) menjadi nilai desimal, lalu di-cast ke `unsigned char`. Lalu tulis bytenya ke output `fputc(byte, out)` dan menulis ke file PNG.
+
+### 3. Fungsi `ensure_png()`
+
+Fungsi ini bertujuan untuk memastikan file PNG telah dibuat dari file teks heksadesimal (jika belum ada) dan mencatat proses konversinya ke dalam log.
+
+```bash
+static void ensure_png(const char *base)          
+{
+    
+    char txt[1024], png[1024];
+    snprintf(txt, sizeof(txt), "%s/%s.txt", src_dir, base);
+
+    struct stat st;
+    if (stat(txt, &st) == -1) return;             
+
+    DIR *dp = opendir(img_dir);
+    if (!dp) return;
+    struct dirent *de;
+    char wanted_prefix[256];
+    snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);
+    while ((de = readdir(dp))) {
+        if (strncmp(de->d_name, wanted_prefix, strlen(wanted_prefix)) == 0) {
+            closedir(dp);                        
+            return;
+        }
+    }
+    closedir(dp);
+
+    
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char ts[32];
+    strftime(ts, sizeof(ts), "%Y-%m-%d_%H:%M:%S", t);
+    snprintf(png, sizeof(png), "%s/%s_image_%s.png", img_dir, base, ts);
+
+    hex_to_png(txt, png);
+
+    
+    char log_path[1024];
+    sprintf(log_path, "%s/conversion.log", src_dir); 
+
+    struct tm *tm_info = localtime(&now);
+    char timestamp[64];
+    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d_%H:%M:%S", tm_info);
+
+    FILE *log_file = fopen(log_path, "a");
+    if (log_file) {
+        fprintf(log_file, "[%s]: Successfully converted hexadecimal text %s to %s.\n",
+                timestamp, base, strrchr(png, '/') + 1);
+        fclose(log_file);
+    }
+}
+```
+Penjelasan:
+- `snprintf(wanted_prefix, sizeof(wanted_prefix), "%s_image_", base);
+while ((de = readdir(dp))) {
+    if (strncmp(de->d_name, wanted_prefix, strlen(wanted_prefix)) == 0) {
+        closedir(dp);
+        return;` 
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
