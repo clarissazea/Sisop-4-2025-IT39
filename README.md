@@ -397,6 +397,11 @@ return fuse_main(argc, argv, &ops, NULL);
 - `fuse_main(argc, argv, &ops, NULL):`: Fungsi utama FUSE yang memulai filesystem virtual
     - `argc/argv`: Argument dari command line
     - `&ops:` Struct berisi pointer ke fungsi-fungsi filesystem (`fs_readdir`, `fs_open`, dll)
+ 
+## Dokumentasi
+
+![image](https://github.com/user-attachments/assets/4839e907-b0cf-4bca-9593-37358700091b)
+
 
 # Soal 2
 Dikerjakan oleh Ahmad Wildan Fawwaz (5027241001)
