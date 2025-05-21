@@ -193,15 +193,15 @@ Penjelasan:
 
 - `memset(st, 0, sizeof(*st));`: Membersihkan struct `stat` sebelum diisi.
 -
-  ```
+```
   char real[1024];
     if (strncmp(path, "/image/", 8) == 0)
     snprintf(real, sizeof(real), "%s/%s", img_dir, path + 8);
     else
     snprintf(real, sizeof(real), "%s%s", src_dir, path);
-``
-    - Jika path dimulai dengan `/image/` (contoh: `/image/test.png`), mapping ke direktori fisik `img_dir/test.png`.
-    - Jika bukan (contoh: `/file.txt`), mapping ke `src_dir/file.txt`.
+```
+- Jika path dimulai dengan `/image/` (contoh: `/image/test.png`), mapping ke direktori fisik `img_dir/test.png`.
+- Jika bukan (contoh: `/file.txt`), mapping ke `src_dir/file.txt`.
 
 - `if (lstat(real, &st) == -1) return -errno;`: Memanggil lstat() untuk membaca atribut file fisik.
 
