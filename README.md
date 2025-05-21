@@ -344,6 +344,20 @@ Operasi pembacaan:
       - `buf`: Buffer penyimpanan hasil baca
       - `sz`: Jumlah byte yang ingin dibaca
       - `off`: Offset mulai membaca
+- `if (rd == -1) rd = -errno;`: Penanganan error. Jika gagal, konversi error ke kode FUSE
+```
+static struct fuse_operations ops = {
+    .getattr = fs_getattr,
+    .readdir = fs_readdir,
+    .open    = fs_open,
+    .read    = fs_read,
+};
+```
+- `fs_getattr`: Mengambil metadata file (permission, size, dll)
+- `fs_readdir`: Menampilkan isi direktori
+- `fs_open`: Membuka file sebelum operasi baca
+- `fs_read`: Fungsi utama untuk membaca konten file
+
 
 ### 8. Fungsi main()
 
