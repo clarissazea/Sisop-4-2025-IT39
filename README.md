@@ -392,7 +392,7 @@ umask(0);
 return fuse_main(argc, argv, &ops, NULL);
 ```
 
-- `umask(0)`: Menyetel umask ke 0, memastikan permission file/direktori yang dibuat persis seperti yang ditentukan. Tanpa ini, permission asli bisa berbeda karena dipengaruhi oleh umask sistem.
+- `umask(0)`: Memastikan/menyetel umask ke 0, memastikan permission file/direktori yang dibuat persis seperti yang ditentukan. Tanpa ini, permission asli bisa berbeda karena dipengaruhi oleh umask sistem.
 - `fuse_main(argc, argv, &ops, NULL):`: Fungsi utama FUSE yang memulai filesystem virtual
     - `argc/argv`: Argument dari command line
     - `&ops:` Struct berisi pointer ke fungsi-fungsi filesystem (`fs_readdir`, `fs_open`, dll)
