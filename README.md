@@ -461,9 +461,125 @@ static int baymax_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 
 B. File dapat dibaca, disalin, dan ditampilkan utuh
+``'c
+1. Menampilkan Baymax.jpeg sebagai file virtual dari 14 pecahan di direktori relics/
+```c
+int is_virtual_file(const char *path) {
+    return strcmp(path, "/Baymax.jpeg") == 0;
+}
+
+static int fs_getattr(...) {
+    if (is_virtual_file(path)) {
+        stbuf->st_mode = S_IFREG | 0444;
+        stbuf->st_size = 14 * MAX_PART_SIZE;
+        ...
+    }
+}
+```
+Penjelasan:
+
+Fungsi is_virtual_file mengenali /Baymax.jpeg sebagai file virtual.
+Di fs_getattr, file ini dianggap berukuran 14 KB dan hanya dapat dibaca (0444).
+
+
+2. Membaca Baymax.jpeg akan membaca semua isi dari file .000–.013 secara berurutan
+
 ```c
 
+static int fs_read(...) {
+    for (int i = 0; i < 1000; i++) {
+        snprintf(part_path, ..., "%s/%s.%03d", RELICS_DIR, filename, i);
+        FILE *f = fopen(part_path, "rb");
+        ...
+        fread(buf + total_read, 1, bytes_to_read, f);
+        ...
+    }
+    write_log("READ", filename);
+}
 ```
+Penjelasan:
+
+File /Baymax.jpeg dibaca dengan menggabungkan isi semua pecahan Baymax.jpeg.000 hingga .013.
+Isi file dibaca secara sekuensial dan ditulis ke buffer.
+Aktivitas dicatat sebagai READ.
+
+
+3. Membuat file baru akan otomatis dipecah ke direktori relics/ sebagai .000, .001, dst
+
+```c
+static int fs_write(...) {
+    for (int i = 0; i < parts; i++) {
+        snprintf(part_path, ..., "%s/%s.%03d", RELICS_DIR, filename, i);
+        FILE *f = fopen(part_path, "wb");
+        fwrite(buf + i * MAX_PART_SIZE, 1, bytes, f);
+        ...
+    }
+    write_log("WRITE", msg);
+}
+```
+Penjelasan:
+
+File baru disimpan ke relics/ dalam format .000, .001, dst, masing-masing max 1024 byte.
+Nama file utama ditentukan dari nama yang ditulis di FUSE mount point.
+
+
+4. Menghapus file akan menghapus semua pecahan file .000–.xxx yang terkait
+
+```c
+static int fs_unlink(const char *path) {
+    for (int i = 0; i < 1000; i++) {
+        snprintf(part_path, ..., "%s/%s.%03d", RELICS_DIR, filename, i);
+        if (access(part_path, F_OK) != 0) break;
+        remove(part_path);
+    }
+    write_log("DELETE", msg);
+}
+```
+Penjelasan:
+
+Menghapus file dari mount point akan menghapus semua pecahannya di relics/.
+Dicatat ke log sebagai DELETE.
+
+
+5. activity.log mencatat aktivitas READ, WRITE, dan DELETE dengan format tertentu
+
+'''c
+void write_log(const char *action, const char *details) {
+    ...
+    fprintf(log, "[%s] %s: %s\n", time_str, action, details);
+}
+```
+Penjelasan:
+Fungsi write_log dipanggil pada fs_read, fs_write, dan fs_unlink.
+
+Format log: [YYYY-MM-DD HH:MM:SS] ACTION: DETAIL.
+
+
+6. Menyalin file Baymax.jpeg (menggunakan cp) akan memunculkan log COPY: src -> dst
+
+Kode terkait:
+
+void detect_cp_and_log(const char *src_path) {
+    ...
+    if (src && dst && strstr(src, src_path) != NULL) {
+        ...
+        write_log("COPY", msg);
+    }
+}
+
+fs_read(...) {
+    ...
+    detect_cp_and_log(filename);
+}
+
+Penjelasan:
+
+Fungsi detect_cp_and_log memeriksa argumen proses induk (getppid) apakah itu operasi cp.
+
+Jika file yang dibaca adalah hasil cp, maka akan dicatat sebagai COPY.
+
+
+
 ## Dokumentasi
 ![Image](https://github.com/user-attachments/assets/8f75d8e3-e5a8-4b66-bfba-f631dde97cf2)
 ![Image](https://github.com/user-attachments/assets/c462b444-3286-44c0-9905-8ebd0e72cd01)
