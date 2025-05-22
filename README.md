@@ -543,7 +543,7 @@ Dicatat ke log sebagai DELETE.
 
 5. activity.log mencatat aktivitas READ, WRITE, dan DELETE dengan format tertentu
 
-'''c
+```c
 void write_log(const char *action, const char *details) {
     ...
     fprintf(log, "[%s] %s: %s\n", time_str, action, details);
@@ -551,14 +551,12 @@ void write_log(const char *action, const char *details) {
 ```
 Penjelasan:
 Fungsi write_log dipanggil pada fs_read, fs_write, dan fs_unlink.
-
 Format log: [YYYY-MM-DD HH:MM:SS] ACTION: DETAIL.
 
 
 6. Menyalin file Baymax.jpeg (menggunakan cp) akan memunculkan log COPY: src -> dst
 
-Kode terkait:
-
+```c
 void detect_cp_and_log(const char *src_path) {
     ...
     if (src && dst && strstr(src, src_path) != NULL) {
@@ -571,9 +569,8 @@ fs_read(...) {
     ...
     detect_cp_and_log(filename);
 }
-
+```
 Penjelasan:
-
 Fungsi detect_cp_and_log memeriksa argumen proses induk (getppid) apakah itu operasi cp.
 
 Jika file yang dibaca adalah hasil cp, maka akan dicatat sebagai COPY.
