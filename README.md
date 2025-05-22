@@ -464,7 +464,23 @@ B. File dapat dibaca, disalin, dan ditampilkan utuh
 ```c
 
 ```
-
+## Dokumentasi
+![Image](https://github.com/user-attachments/assets/8f75d8e3-e5a8-4b66-bfba-f631dde97cf2)
+![Image](https://github.com/user-attachments/assets/c462b444-3286-44c0-9905-8ebd0e72cd01)
+![Image](https://github.com/user-attachments/assets/5e919d9b-545f-4b19-91fb-2db995fce6c3)
+![Image](https://github.com/user-attachments/assets/e33109ed-0c19-46b6-9aec-478b09f98860)
+![Image](https://github.com/user-attachments/assets/9eb61e3b-44bd-4cfd-a792-2309d4e167dc)
+![Image](https://github.com/user-attachments/assets/d842e728-274a-4481-ac71-9314c0f3fb3f)
+![Image](https://github.com/user-attachments/assets/0c97dd15-1525-458d-a898-0144b79347d9)
+![Image](https://github.com/user-attachments/assets/877ae562-fd9a-4ff6-b928-4dd1356de34a)
+![Image](https://github.com/user-attachments/assets/3456c271-7488-40ac-9d06-4c90fb695799)
+![Image](https://github.com/user-attachments/assets/5eb1f4be-f2df-4a03-ae1b-40f37d15902a)
+![Image](https://github.com/user-attachments/assets/b2449052-1e22-45c6-842e-832a5dcabb58)
+![Image](https://github.com/user-attachments/assets/78c2aa5a-897a-4fb1-be06-ac5cd2db14be)
+![Image](https://github.com/user-attachments/assets/c0147b78-2afe-40c4-af9c-09451feb347f)
+![Image](https://github.com/user-attachments/assets/ab73dcb8-77b7-4233-989e-ae1814f51547)
+![Image](https://github.com/user-attachments/assets/2ec72bfc-d7e9-4817-b77d-91c6442036fb)
+![Image](https://github.com/user-attachments/assets/d1444f3e-01bc-4c0c-a3de-12845285fb83)
 
 # Soal 3
 Dikerjakan oleh Muhammad Rafi' Adly (5027241082)
