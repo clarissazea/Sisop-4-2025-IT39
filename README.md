@@ -1,5 +1,4 @@
-# Laporan Resmi Praktikum Modul 4 Sistem Operasi
-# Kelompok IT39
+# Laporan Resmi Praktikum Modul 4 (Kelompok IT39)
 
 # Soal 1
 Dikerjakan oleh Clarissa Aydin Rahmazea (5027241014)
