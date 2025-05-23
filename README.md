@@ -601,4 +601,18 @@ Dikerjakan oleh Muhammad Rafi' Adly (5027241082)
 ## a. Sistem AntiNK
 
 # Soal 4
-Dikerjakan oleh
+Sistem FUSE ini dirancang untuk menyimulasikan penyimpanan virtual berbasis direktori dengan karakteristik unik untuk masing-masing area (Chiho) yang terdapat dalam universe game maimai milik SEGA. Sistem ini bekerja sebagai filesystem virtual yang dimount ke direktori pengguna, dan setiap operasi file seperti membaca, menulis, membuat file baru, dan menghapus file akan ditangani secara khusus berdasarkan aturan yang telah ditentukan oleh SEGA untuk masing-masing area.
+
+Dalam sistem ini terdapat 7 area utama (Chiho), yang masing-masing memiliki perilaku manipulasi file yang berbeda, baik dari segi konten file, nama file, maupun proses pengaksesannya. Pengguna akhir cukup mengakses filesystem seperti biasa melalui direktori mount (fuse_dir/) dan seluruh kompleksitas manipulasi file dikelola sepenuhnya oleh backend sistem FUSE.
+
+## Spesifikasi Setiap Area
+
+- Area Starter: Tambah `.mai` di backend, hilangkan saat akses FUSE
+- Area Metro: Shift karakter isi file berdasarkan indeks saat write
+- Area Dragon: Enkripsi isi file dengan ROT13
+- Area Black Rose: Simpan file mentah tanpa encoding
+- Area Heaven: Enkripsi AES-256-CBC (dengan IV per file)
+- Area Youth: Kompresi/dekompresi menggunakan `gzip`/`zlib`
+- 7sRef	(Prism Area): Gateway ke seluruh area dengan sistem nama `[area]_[file]`.
+
+
