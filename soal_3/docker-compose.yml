@@ -1,24 +1,17 @@
-version: "3"
+version: '3.8'
+
 services:
-  antink-server:
-    build: ./server
-    privileged: true
+  antink:
+    build: .
+    container_name: antink
     devices:
       - /dev/fuse
     cap_add:
       - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
     volumes:
-      - it24_host:/original
-      - antink_mount:/antink_mount
-      - antink-logs:/var/log
-
-  antink-logger:
-    build: ./logger
-    volumes:
-      - antink-logs:/var/log
-    command: tail -F /var/log/it24.log
-
-volumes:
-  it24_host:
-  antink_mount:
-  antink-logs:
+      - ./it24_host:/original
+      - ./antink_mount:/antink_mount
+      - ./antink-logs:/var/log
+    privileged: true
