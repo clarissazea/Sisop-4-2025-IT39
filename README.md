@@ -598,6 +598,28 @@ Jika file yang dibaca adalah hasil cp, maka akan dicatat sebagai COPY.
 # Soal 3
 Dikerjakan oleh Muhammad Rafi' Adly (5027241082)
 
+Package di-install di Dockerfile
+```
+RUN apt update && apt install -y \
+    gcc \
+    fuse \
+    libfuse-dev \
+    pkg-config \
+    make \
+    sudo \
+    libssl-dev \
+ && rm -rf /var/lib/apt/lists/*
+```
+Jalankan docker
+```
+docker compose up
+docker compose build
+docker compose run --rm antink bash
+```
+
+## Revisi
+Mengganti keseluruhan Dockerfile dan docker-compose
+
 ## a. Sistem AntiNK
 
 # Soal 4
